@@ -3,212 +3,393 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BuildBlox Arcade - Jeux Ultimes</title>
+  <title>BuildBlox Arcade - Jeux d'Équipe & Championnats</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #0f172a; color: #f8fafc; text-align: center; padding: 15px; }
-    header { margin-bottom: 20px; }
-    h1 { color: #38bdf8; font-size: 2rem; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
-    p { color: #94a3b8; font-size: 0.9rem; }
+    body { background-color: #0f172a; color: #f8fafc; text-align: center; padding: 12px; }
+    header { margin-bottom: 12px; }
+    h1 { color: #38bdf8; font-size: 1.8rem; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+    p { color: #94a3b8; font-size: 0.85rem; }
     
-    .ad-banner { background: #1e293b; border: 1px dashed #38bdf8; padding: 10px; margin: 15px auto; max-width: 400px; border-radius: 8px; font-size: 0.8rem; color: #64748b; }
+    .ad-banner { background: #1e293b; border: 1px dashed #38bdf8; padding: 8px; margin: 10px auto; max-width: 400px; border-radius: 8px; font-size: 0.75rem; color: #64748b; }
     
-    /* Menu Nav */
-    .menu { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-    .tab-btn { background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 10px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: all 0.2s; }
-    .tab-btn.active { background: #0284c7; border-color: #38bdf8; box-shadow: 0 0 12px rgba(56, 189, 248, 0.4); }
+    .contest-banner { background: linear-gradient(135deg, #ff007f, #7928ca); padding: 10px; border-radius: 10px; margin: 10px auto; max-width: 400px; font-weight: bold; font-size: 0.85rem; box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4); }
 
-    .game-section { display: none; background: #1e293b; padding: 20px; border-radius: 12px; max-width: 380px; margin: 0 auto; border: 1px solid #334155; }
+    .menu { display: flex; justify-content: center; gap: 5px; margin-bottom: 12px; flex-wrap: wrap; max-width: 450px; margin-left: auto; margin-right: auto; }
+    .tab-btn { background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 10px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
+    .tab-btn.active { background: #0284c7; border-color: #38bdf8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.4); }
+
+    .game-section { display: none; background: #1e293b; padding: 15px; border-radius: 12px; max-width: 380px; margin: 0 auto; border: 1px solid #334155; }
     .game-section.active { display: block; }
 
-    /* JEU 1 : Mémoire */
-    .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-    .card { background: #334155; height: 75px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; user-select: none; transition: transform 0.3s; }
-    .card.flipped { background: #0284c7; transform: rotateY(180deg); }
+    canvas { background: #020617; border-radius: 8px; border: 1px solid #334155; display: block; margin: 10px auto; }
+
+    .scoreboard { display: flex; justify-content: space-around; background: #0f172a; padding: 8px; border-radius: 8px; font-weight: bold; margin-bottom: 10px; }
+    .team-blue { color: #38bdf8; }
+    .team-red { color: #f43f5e; }
+
+    /* Mémoire & Morpion & Autres */
+    .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+    .card { background: #334155; height: 65px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; cursor: pointer; }
+    .card.flipped { background: #0284c7; }
     .card.matched { background: #10b981; }
 
-    /* JEU 2 : Réflexe */
-    .tap-area { background: #0f172a; height: 220px; margin: 15px auto; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; border: 1px solid #334155; }
-    .tap-target { width: 70px; height: 70px; background: #f43f5e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; position: absolute; transition: transform 0.1s; }
+    .tap-area { background: #0f172a; height: 180px; margin: 10px auto; border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border: 1px solid #334155; }
+    .tap-target { width: 60px; height: 60px; background: #f43f5e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; position: absolute; }
 
-    /* JEU 3 : Calcul Flash */
-    .math-box { font-size: 2rem; font-weight: bold; margin: 15px 0; color: #38bdf8; }
-    .math-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .math-btn { background: #334155; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; font-weight: bold; }
-    .math-btn:active { background: #0284c7; }
+    .math-box { font-size: 1.8rem; font-weight: bold; margin: 10px 0; color: #38bdf8; }
+    .math-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .math-btn { background: #334155; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold; }
 
-    .btn { background: #0284c7; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1rem; width: 100%; }
+    .ttt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 240px; margin: 10px auto; }
+    .ttt-cell { background: #334155; height: 75px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; cursor: pointer; }
+
+    .vehicle-selector { display: flex; justify-content: center; gap: 10px; margin-bottom: 8px; }
+    .v-btn { background: #0f172a; border: 1px solid #334155; color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
+    .v-btn.active { border-color: #38bdf8; background: #0284c7; }
+
+    .btn { background: #0284c7; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 0.9rem; width: 100%; }
+    .btn-wa { background: #25d366; margin-top: 8px; color: #fff; }
     .btn-vip { background: #f59e0b; margin-top: 10px; }
-    
-    .score-text { font-size: 1.1rem; color: #f8fafc; margin-top: 10px; }
+    .score-text { font-size: 0.9rem; color: #f8fafc; margin-top: 5px; }
   </style>
 </head>
 <body>
 
   <header>
     <h1>🧱 BuildBlox Arcade</h1>
-    <p>3 Mini-Jeux Rapides & Addictifs</p>
+    <p>Matchs d'Équipe & Compétitions Multijoueurs</p>
   </header>
 
-  <!-- Espace Pub Supérieur -->
+  <div class="contest-banner">
+    🏆 TOURNOI D'ÉQUIPE : Choisissez votre jeu et défiez vos amis !
+  </div>
+
   <div class="ad-banner">📢 Espace Publicitaire (AdSense / Monetag)</div>
 
-  <!-- Menu de sélection -->
   <div class="menu">
-    <button class="tab-btn active" onclick="switchGame('memory', this)">🧠 Mémoire</button>
+    <button class="tab-btn active" onclick="switchGame('basket', this)">🏀 Basket</button>
+    <button class="tab-btn" onclick="switchGame('race', this)">🏎️ Courses</button>
+    <button class="tab-btn" onclick="switchGame('tower', this)">🏗️ Tour</button>
+    <button class="tab-btn" onclick="switchGame('snake', this)">🐍 Snake</button>
+    <button class="tab-btn" onclick="switchGame('bird', this)">🐦 Flappy</button>
+    <button class="tab-btn" onclick="switchGame('ttt', this)">❌ Morpion</button>
+    <button class="tab-btn" onclick="switchGame('memory', this)">🧠 Mémoire</button>
     <button class="tab-btn" onclick="switchGame('reflex', this)">⚡ Réflexe</button>
     <button class="tab-btn" onclick="switchGame('math', this)">🧮 Calcul</button>
   </div>
 
-  <!-- JEU 1 : Mémoire -->
-  <div id="game-memory" class="game-section active">
+  <!-- 1. BASKETBALL D'ÉQUIPE -->
+  <div id="game-basket" class="game-section active">
+    <h3>Basket 2v2 : Bleus vs Rouges</h3>
+    <div class="scoreboard">
+      <span class="team-blue">🔵 Bleus : <span id="score-blue">0</span></span>
+      <span class="team-red">🔴 Rouges : <span id="score-red">0</span></span>
+    </div>
+    <canvas id="basketCanvas" width="300" height="200"></canvas>
+    <button class="btn" onclick="shootBasket()">🏀 Tirer au Panier !</button>
+    <button class="btn btn-wa" onclick="shareOnWhatsApp('Basket')">📲 Défier un ami sur WhatsApp</button>
+  </div>
+
+  <!-- 2. COURSE MULTIVERS (VOITURE, MOTO, VÉLO) -->
+  <div id="game-race" class="game-section">
+    <h3>Course d'Équipe Multivers</h3>
+    <div class="vehicle-selector">
+      <button class="v-btn active" onclick="selectVehicle('🚗', this)">🚗 Auto</button>
+      <button class="v-btn" onclick="selectVehicle('🏍️', this)">🏍️ Moto</button>
+      <button class="v-btn" onclick="selectVehicle('🚴', this)">🚴 Vélo</button>
+    </div>
+    <canvas id="raceCanvas" width="280" height="200"></canvas>
+    <div style="display:flex; gap:10px; margin-top:5px;">
+      <button class="btn" onclick="moveRace('LEFT')">⬅️ Gauche</button>
+      <button class="btn" onclick="moveRace('RIGHT')">Droit ➡️</button>
+    </div>
+    <div class="score-text">Distance : <span id="race-score">0</span> m</div>
+    <button class="btn btn-wa" onclick="shareOnWhatsApp('Course')">📲 Défier un ami sur WhatsApp</button>
+  </div>
+
+  <!-- 3. TOUR BLOX -->
+  <div id="game-tower" class="game-section">
+    <h3>Construction de Tour</h3>
+    <canvas id="towerCanvas" width="300" height="210"></canvas>
+    <div class="score-text">Étages : <span id="tower-score">0</span></div>
+    <button class="btn" onclick="initTowerGame()">🔄 Recommencer</button>
+    <button class="btn btn-wa" onclick="shareOnWhatsApp('Tour')">📲 Défier un ami sur WhatsApp</button>
+  </div>
+
+  <!-- 4. SNAKE -->
+  <div id="game-snake" class="game-section">
+    <h3>Serpent Néon</h3>
+    <canvas id="snakeCanvas" width="280" height="180"></canvas>
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 5px; max-width: 180px; margin: 5px auto;">
+      <div></div><button class="math-btn" onclick="changeSnakeDir('UP')">⬆️</button><div></div>
+      <button class="math-btn" onclick="changeSnakeDir('LEFT')">⬅️</button>
+      <button class="math-btn" onclick="changeSnakeDir('DOWN')">⬇️</button>
+      <button class="math-btn" onclick="changeSnakeDir('RIGHT')">➡️</button>
+    </div>
+    <div class="score-text">Score : <span id="snake-score">0</span></div>
+  </div>
+
+  <!-- 5. FLAPPY BIRD -->
+  <div id="game-bird" class="game-section">
+    <h3>Flappy Bird</h3>
+    <canvas id="birdCanvas" width="280" height="180" onclick="flapBird()"></canvas>
+    <div class="score-text">Score : <span id="bird-score">0</span></div>
+    <button class="btn" onclick="initBirdGame()">🔄 Recommencer</button>
+  </div>
+
+  <!-- 6. MORPION -->
+  <div id="game-ttt" class="game-section">
+    <h3>Morpion VS IA</h3>
+    <div class="ttt-grid" id="tttGrid"></div>
+    <div class="score-text" id="tttStatus">À vous de jouer (X)</div>
+    <button class="btn" onclick="initTTTGame()">🔄 Recommencer</button>
+  </div>
+
+  <!-- 7. MÉMOIRE -->
+  <div id="game-memory" class="game-section">
     <h3>Jeu de Mémoire</h3>
-    <p>Associez tous les symboles !</p>
     <div class="memory-grid" id="grid"></div>
     <button class="btn" onclick="initMemoryGame()">🔄 Recommencer</button>
   </div>
 
-  <!-- JEU 2 : Réflexe -->
+  <!-- 8. RÉFLEXE -->
   <div id="game-reflex" class="game-section">
     <h3>Test de Réflexe</h3>
-    <p>Tapez la cible le plus vite possible !</p>
     <div class="tap-area" onclick="hitTarget()">
       <div class="tap-target" id="target">🎯</div>
     </div>
     <div class="score-text">Score : <span id="score-reflex">0</span></div>
   </div>
 
-  <!-- JEU 3 : Calcul Flash -->
+  <!-- 9. CALCUL FLASH -->
   <div id="game-math" class="game-section">
-    <h3>Calcul Flash (15s)</h3>
-    <div class="score-text">Temps restant : <span id="math-timer" style="color:#f59e0b;">15</span>s | Score : <span id="score-math">0</span></div>
+    <h3>Calcul Flash</h3>
+    <div class="score-text">Temps : <span id="math-timer" style="color:#f59e0b;">15</span>s | Score : <span id="score-math">0</span></div>
     <div class="math-box" id="math-question">Ready?</div>
     <div class="math-options" id="math-answers">
-      <button class="math-btn" onclick="startMathGame()">Commencer 🚀</button>
+      <button class="math-btn" style="grid-column: span 2;" onclick="startMathGame()">Commencer 🚀</button>
     </div>
   </div>
 
-  <button class="btn btn-vip" onclick="alert('Paiement via Mobile Money / Paystack bientôt actif !')">👑 Devenir VIP (0 Pubs)</button>
+  <button class="btn btn-vip" onclick="speak('Rejoignez le club VIP pour supprimer les publicités !'); alert('Paiement Mobile Money bientôt actif !')">👑 Devenir VIP (0 Pubs)</button>
 
-  <!-- Espace Pub Inférieur -->
   <div class="ad-banner">📢 Espace Publicitaire (AdSense / Monetag)</div>
 
   <script>
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'fr-FR';
+        msg.rate = 1.1;
+        window.speechSynthesis.speak(msg);
+      }
+    }
+
+    function shareOnWhatsApp(gameName) {
+      const url = window.location.href;
+      const text = `🔥 J'ai fait un super score au jeu de ${gameName} sur BuildBlox Arcade ! Peux-tu me battre ? Joue ici : ${url}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
     function switchGame(gameType, btn) {
       document.querySelectorAll('.game-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('game-' + gameType).classList.add('active');
       btn.classList.add('active');
+      
+      if(gameType === 'basket') { initBasketGame(); speak("Match de basket d'équipe !"); }
+      if(gameType === 'race') { initRaceGame(); speak("Course de véhicules !"); }
+      if(gameType === 'tower') { initTowerGame(); speak("Jeu de la tour !"); }
+      if(gameType === 'snake') { initSnakeGame(); speak("Serpent Néon !"); }
+      if(gameType === 'bird') { initBirdGame(); speak("Flappy Bird !"); }
+      if(gameType === 'ttt') { initTTTGame(); speak("Morpion !"); }
+      if(gameType === 'memory') { initMemoryGame(); speak("Jeu de mémoire !"); }
+      if(gameType === 'reflex') { speak("Test de réflexe !"); }
+      if(gameType === 'math') { speak("Calcul rapide !"); }
     }
 
-    /* --- 1. JEU DE MÉMOIRE --- */
-    const icons = ['🧱', '🎮', '🚀', '💎', '🧱', '🎮', '🚀', '💎'];
-    let flippedCards = [], matchedCount = 0;
+    /* 1. BASKET D'ÉQUIPE */
+    let basketCtx, blueScore = 0, redScore = 0, ballY = 140, ballX = 60, isShooting = false;
+    function initBasketGame() {
+      const canvas = document.getElementById('basketCanvas');
+      basketCtx = canvas.getContext('2d');
+      drawBasketCourt();
+    }
+    function drawBasketCourt() {
+      basketCtx.fillStyle = '#020617'; basketCtx.fillRect(0, 0, 300, 200);
+      basketCtx.strokeStyle = '#334155'; basketCtx.lineWidth = 2; basketCtx.strokeRect(10, 10, 280, 180);
+      basketCtx.fillStyle = '#f59e0b'; basketCtx.fillRect(260, 60, 8, 50);
+      basketCtx.fillStyle = '#f43f5e'; basketCtx.fillRect(240, 80, 20, 5);
+      
+      basketCtx.fillStyle = '#38bdf8'; basketCtx.fillRect(50, 130, 20, 35);
+      basketCtx.beginPath(); basketCtx.arc(60, 120, 10, 0, Math.PI*2); basketCtx.fill();
 
-    function initMemoryGame() {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '';
-      let cards = [...icons].sort(() => Math.random() - 0.5);
-      flippedCards = []; matchedCount = 0;
+      basketCtx.fillStyle = '#f43f5e'; basketCtx.fillRect(200, 130, 20, 35);
+      basketCtx.beginPath(); basketCtx.arc(210, 120, 10, 0, Math.PI*2); basketCtx.fill();
 
-      cards.forEach((icon) => {
-        const card = document.createElement('div');
-        card.classList.add('card');
-        card.dataset.icon = icon;
-        card.onclick = () => {
-          if (flippedCards.length < 2 && !card.classList.contains('flipped') && !card.classList.contains('matched')) {
-            card.classList.add('flipped');
-            card.textContent = icon;
-            flippedCards.push(card);
-
-            if (flippedCards.length === 2) {
-              if (flippedCards[0].dataset.icon === flippedCards[1].dataset.icon) {
-                flippedCards[0].classList.add('matched');
-                flippedCards[1].classList.add('matched');
-                matchedCount += 2;
-                flippedCards = [];
-                if (matchedCount === cards.length) setTimeout(() => alert('Victoire ! 🎉'), 300);
-              } else {
-                setTimeout(() => {
-                  flippedCards.forEach(c => { c.classList.remove('flipped'); c.textContent = ''; });
-                  flippedCards = [];
-                }, 700);
-              }
-            }
+      basketCtx.fillStyle = '#f97316';
+      basketCtx.beginPath(); basketCtx.arc(ballX, ballY, 8, 0, Math.PI*2); basketCtx.fill();
+    }
+    function shootBasket() {
+      if(isShooting) return;
+      isShooting = true;
+      let startX = 60, startY = 120, targetX = 245, targetY = 80, progress = 0;
+      let interval = setInterval(() => {
+        progress += 0.04;
+        ballX = startX + (targetX - startX) * progress;
+        ballY = startY + (targetY - startY) * progress - Math.sin(progress * Math.PI) * 60;
+        drawBasketCourt();
+        if (progress >= 1) {
+          clearInterval(interval); isShooting = false; ballX = 60; ballY = 140;
+          if(Math.random() > 0.3) {
+            blueScore += 2; document.getElementById('score-blue').textContent = blueScore;
+            speak("Panier pour l'équipe Bleue ! Deux points !");
+          } else {
+            redScore += 2; document.getElementById('score-red').textContent = redScore;
+            speak("Tir manqué ! L'équipe Rouge marque !");
           }
-        };
-        grid.appendChild(card);
+          drawBasketCourt();
+        }
+      }, 20);
+    }
+
+    /* 2. COURSE MULTIVERS (VOITURE, MOTO, VÉLO) */
+    let raceCtx, racePlayerX = 120, raceScore = 0, currentVehicle = '🚗', raceInterval, obstacles = [];
+    function selectVehicle(v, btn) {
+      currentVehicle = v;
+      document.querySelectorAll('.v-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    function initRaceGame() {
+      const canvas = document.getElementById('raceCanvas');
+      raceCtx = canvas.getContext('2d');
+      racePlayerX = 120; raceScore = 0; obstacles = [];
+      document.getElementById('race-score').textContent = 0;
+      clearInterval(raceInterval);
+      raceInterval = setInterval(updateRace, 40);
+    }
+    function moveRace(dir) {
+      if(dir === 'LEFT' && racePlayerX > 30) racePlayerX -= 80;
+      if(dir === 'RIGHT' && racePlayerX < 190) racePlayerX += 80;
+    }
+    function updateRace() {
+      raceScore += 1; document.getElementById('race-score').textContent = raceScore;
+      if(Math.random() < 0.05) obstacles.push({x: [30, 110, 190][Math.floor(Math.random()*3)], y: -30});
+
+      raceCtx.fillStyle = '#0f172a'; raceCtx.fillRect(0,0,280,200);
+      raceCtx.fillStyle = '#334155'; raceCtx.fillRect(20, 0, 240, 200);
+      
+      raceCtx.font = "26px Arial";
+      raceCtx.fillText(currentVehicle, racePlayerX, 170);
+
+      obstacles.forEach((obs, idx) => {
+        obs.y += 5;
+        raceCtx.fillText("🚔", obs.x, obs.y);
+        if(obs.y > 140 && obs.y < 180 && obs.x === racePlayerX) {
+          clearInterval(raceInterval); speak("Accident ! Fin de la course !"); alert('Accident ! Distance : ' + raceScore + 'm');
+        }
+        if(obs.y > 210) obstacles.splice(idx, 1);
       });
     }
 
-    /* --- 2. JEU DE RÉFLEXE --- */
-    let reflexScore = 0;
-    function hitTarget() {
-      reflexScore++;
-      document.getElementById('score-reflex').textContent = reflexScore;
-      const target = document.getElementById('target');
-      const x = Math.floor(Math.random() * 200) - 100;
-      const y = Math.floor(Math.random() * 100) - 50;
-      target.style.transform = `translate(${x}px, ${y}px)`;
+    /* 3. TOUR BLOX */
+    let towerCtx, towerStack = [], currentBlock = {}, towerScore = 0, towerInterval;
+    function initTowerGame() {
+      const canvas = document.getElementById('towerCanvas');
+      towerCtx = canvas.getContext('2d');
+      towerScore = 0; document.getElementById('tower-score').textContent = 0;
+      towerStack = [{ x: 75, w: 150, y: 180 }];
+      currentBlock = { x: 0, w: 150, y: 158, dir: 3 };
+      clearInterval(towerInterval);
+      towerInterval = setInterval(updateTower, 20);
+      canvas.onclick = dropBlock;
     }
-
-    /* --- 3. JEU CALCUL FLASH --- */
-    let mathScore = 0, mathTimer = 15, mathInterval, currentCorrectAnswer = 0;
-
-    function startMathGame() {
-      mathScore = 0; mathTimer = 15;
-      document.getElementById('score-math').textContent = mathScore;
-      document.getElementById('math-timer').textContent = mathTimer;
-      
-      clearInterval(mathInterval);
-      mathInterval = setInterval(() => {
-        mathTimer--;
-        document.getElementById('math-timer').textContent = mathTimer;
-        if (mathTimer <= 0) {
-          clearInterval(mathInterval);
-          alert('Temps écoulé ! Score final : ' + mathScore);
-          document.getElementById('math-answers').innerHTML = `<button class="math-btn" style="grid-column: span 2;" onclick="startMathGame()">Rejouer 🔄</button>`;
-        }
-      }, 1000);
-
-      nextMathQuestion();
+    function updateTower() {
+      towerCtx.fillStyle = '#020617'; towerCtx.fillRect(0, 0, 300, 210);
+      towerCtx.fillStyle = '#38bdf8';
+      towerStack.forEach(b => towerCtx.fillRect(b.x, b.y, b.w, 22));
+      towerCtx.fillStyle = '#f43f5e';
+      towerCtx.fillRect(currentBlock.x, currentBlock.y, currentBlock.w, 22);
+      currentBlock.x += currentBlock.dir;
+      if(currentBlock.x <= 0 || currentBlock.x + currentBlock.w >= 300) currentBlock.dir *= -1;
     }
-
-    function nextMathQuestion() {
-      const num1 = Math.floor(Math.random() * 12) + 1;
-      const num2 = Math.floor(Math.random() * 12) + 1;
-      const isAddition = Math.random() > 0.5;
-      
-      currentCorrectAnswer = isAddition ? num1 + num2 : num1 * num2;
-      document.getElementById('math-question').textContent = `${num1} ${isAddition ? '+' : '×'} ${num2} = ?`;
-
-      let answers = [currentCorrectAnswer, currentCorrectAnswer + 2, currentCorrectAnswer - 1, currentCorrectAnswer + 5];
-      answers.sort(() => Math.random() - 0.5);
-
-      const answersContainer = document.getElementById('math-answers');
-      answersContainer.innerHTML = '';
-      answers.forEach(ans => {
-        const btn = document.createElement('button');
-        btn.classList.add('math-btn');
-        btn.textContent = ans;
-        btn.onclick = () => checkMathAnswer(ans);
-        answersContainer.appendChild(btn);
-      });
-    }
-
-    function checkMathAnswer(selected) {
-      if (mathTimer > 0) {
-        if (selected === currentCorrectAnswer) {
-          mathScore++;
-          document.getElementById('score-math').textContent = mathScore;
-        }
-        nextMathQuestion();
+    function dropBlock() {
+      let prev = towerStack[towerStack.length - 1];
+      let diff = currentBlock.x - prev.x;
+      if (Math.abs(diff) >= currentBlock.w) {
+        clearInterval(towerInterval); speak("Partie terminée !"); alert('Perdu ! Score : ' + towerScore);
+      } else {
+        currentBlock.w -= Math.abs(diff);
+        if (diff < 0) currentBlock.x = prev.x;
+        towerStack.push({...currentBlock});
+        towerScore++; document.getElementById('tower-score').textContent = towerScore;
+        if(currentBlock.y > 40) currentBlock.y -= 22;
+        else towerStack.forEach(b => b.y += 22);
       }
     }
 
-    // Lancement automatique du jeu de mémoire
-    initMemoryGame();
-  </script>
+    /* 4. SNAKE */
+    let snakeCtx, snake = [], food = {}, snakeDir = 'RIGHT', snakeScore = 0, snakeInterval;
+    function initSnakeGame() {
+      const canvas = document.getElementById('snakeCanvas');
+      snakeCtx = canvas.getContext('2d');
+      snake = [{x: 100, y: 80}, {x: 80, y: 80}]; food = {x: 160, y: 80}; snakeScore = 0; snakeDir = 'RIGHT';
+      document.getElementById('snake-score').textContent = 0;
+      clearInterval(snakeInterval);
+      snakeInterval = setInterval(updateSnake, 120);
+    }
+    function changeSnakeDir(d) { snakeDir = d; }
+    function updateSnake() {
+      let head = {...snake[0]};
+      if(snakeDir==='RIGHT') head.x += 20; if(snakeDir==='LEFT') head.x -= 20;
+      if(snakeDir==='UP') head.y -= 20; if(snakeDir==='DOWN') head.y += 20;
+      if(head.x < 0 || head.x >= 280 || head.y < 0 || head.y >= 180 || snake.some(s => s.x === head.x && s.y === head.y)) {
+        clearInterval(snakeInterval); speak("Perdu !"); alert('Fin de partie ! Score : ' + snakeScore); return;
+      }
+      snake.unshift(head);
+      if(head.x === food.x && head.y === food.y) {
+        snakeScore += 10; document.getElementById('snake-score').textContent = snakeScore;
+        food = {x: Math.floor(Math.random()*13)*20, y: Math.floor(Math.random()*8)*20};
+      } else snake.pop();
 
-</body>
-</html>
+      snakeCtx.fillStyle = '#020617'; snakeCtx.fillRect(0,0,280,180);
+      snakeCtx.fillStyle = '#10b981'; snake.forEach(s => snakeCtx.fillRect(s.x, s.y, 18, 18));
+      snakeCtx.fillStyle = '#f43f5e'; snakeCtx.fillRect(food.x, food.y, 18, 18);
+    }
+
+    /* 5. FLAPPY BIRD */
+    let birdCtx, birdY = 90, birdV = 0, pipes = [], birdScore = 0, birdInterval;
+    function initBirdGame() {
+      const canvas = document.getElementById('birdCanvas');
+      birdCtx = canvas.getContext('2d');
+      birdY = 90; birdV = 0; pipes = []; birdScore = 0;
+      document.getElementById('bird-score').textContent = 0;
+      clearInterval(birdInterval);
+      birdInterval = setInterval(updateBird, 30);
+    }
+    function flapBird() { birdV = -5.5; }
+    function updateBird() {
+      birdV += 0.35; birdY += birdV;
+      if(pipes.length === 0 || pipes[pipes.length-1].x < 140) pipes.push({x: 280, top: Math.random()*60 + 20});
+      pipes.forEach(p => p.x -= 2.5);
+      if(pipes[0].x < -30) { pipes.shift(); birdScore++; document.getElementById('bird-score').textContent = birdScore; }
+
+      birdCtx.fillStyle = '#020617'; birdCtx.fillRect(0,0,280,180);
+      birdCtx.fillStyle = '#f59e0b'; birdCtx.fillRect(40, birdY, 18, 18);
+      birdCtx.fillStyle = '#10b981';
+      pipes.forEach(p => {
+        birdCtx.fillRect(p.x, 0, 28, p.top);
+        birdCtx.fillRect(p.x, p.top + 70, 28, 180 - p.top - 70);
+        if(40 + 18 > p.x && 40 < p.x + 28 && (birdY < p.top || birdY + 18 > p.top + 70)) {
+          clearInterval(birdInterval); speak("Game Over !"); alert('Score : ' + birdScore);
+        }
+      });
+      if(birdY > 180 || birdY < 0) { clearInterval(birdInterval); speak("Game Over !"); alert('Score : ' + birdScore); }
+    }
+
+    /* 6, 7, 8, 9. MORPION, MÉMOIRE, RÉFLEXE, CALCUL */
+    let tttBoard = ['', '', '', '', '', '', '', '', ''], tttActive = true;
+    function initTTTGame() {
+      tttBoard = ['', '', '', '', '', '',5
