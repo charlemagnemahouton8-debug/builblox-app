@@ -3,107 +3,211 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BuildBlox Games - Jeu de Mémoire</title>
+  <title>BuildBlox Arcade - Jeux Ultimes</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-    body { background-color: #1a1a2e; color: #fff; text-align: center; padding: 15px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #0f172a; color: #f8fafc; text-align: center; padding: 15px; }
     header { margin-bottom: 20px; }
-    h1 { color: #00d2d3; font-size: 1.8rem; }
+    h1 { color: #38bdf8; font-size: 2rem; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+    p { color: #94a3b8; font-size: 0.9rem; }
     
-    .ad-banner { background: #16213e; border: 1px dashed #00d2d3; padding: 10px; margin: 15px auto; max-width: 400px; border-radius: 8px; font-size: 0.8rem; color: #888; }
+    .ad-banner { background: #1e293b; border: 1px dashed #38bdf8; padding: 10px; margin: 15px auto; max-width: 400px; border-radius: 8px; font-size: 0.8rem; color: #64748b; }
     
-    .game-container { max-width: 360px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .card { background: #0f3460; height: 75px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; user-select: none; transition: transform 0.2s; }
-    .card.flipped { background: #e94560; transform: rotateY(180deg); }
-    .card.matched { background: #2ed573; visibility: visible; }
+    /* Menu Nav */
+    .menu { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn { background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 10px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: all 0.2s; }
+    .tab-btn.active { background: #0284c7; border-color: #38bdf8; box-shadow: 0 0 12px rgba(56, 189, 248, 0.4); }
+
+    .game-section { display: none; background: #1e293b; padding: 20px; border-radius: 12px; max-width: 380px; margin: 0 auto; border: 1px solid #334155; }
+    .game-section.active { display: block; }
+
+    /* JEU 1 : Mémoire */
+    .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+    .card { background: #334155; height: 75px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; user-select: none; transition: transform 0.3s; }
+    .card.flipped { background: #0284c7; transform: rotateY(180deg); }
+    .card.matched { background: #10b981; }
+
+    /* JEU 2 : Réflexe */
+    .tap-area { background: #0f172a; height: 220px; margin: 15px auto; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; border: 1px solid #334155; }
+    .tap-target { width: 70px; height: 70px; background: #f43f5e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; position: absolute; transition: transform 0.1s; }
+
+    /* JEU 3 : Calcul Flash */
+    .math-box { font-size: 2rem; font-weight: bold; margin: 15px 0; color: #38bdf8; }
+    .math-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .math-btn { background: #334155; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; font-weight: bold; }
+    .math-btn:active { background: #0284c7; }
+
+    .btn { background: #0284c7; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1rem; width: 100%; }
+    .btn-vip { background: #f59e0b; margin-top: 10px; }
     
-    .controls { margin-top: 20px; }
-    .btn { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-    .btn-pro { background: #ff9f43; margin-top: 10px; }
+    .score-text { font-size: 1.1rem; color: #f8fafc; margin-top: 10px; }
   </style>
 </head>
 <body>
 
   <header>
     <h1>🧱 BuildBlox Arcade</h1>
-    <p>Trouvez toutes les paires !</p>
+    <p>3 Mini-Jeux Rapides & Addictifs</p>
   </header>
 
-  <!-- Emplacement Pub Haut -->
-  <div class="ad-banner">📢 Espace Publicitaire AdSense / Monetag</div>
+  <!-- Espace Pub Supérieur -->
+  <div class="ad-banner">📢 Espace Publicitaire (AdSense / Monetag)</div>
 
-  <div class="game-container" id="grid"></div>
-
-  <div class="controls">
-    <button class="btn" onclick="initGame()">🔄 Recommencer</button>
-    <br>
-    <button class="btn btn-pro" onclick="alert('Débloquez le mode multijoueur et enlevez les pubs pour 1$ !')">👑 Passer à la version VIP</button>
+  <!-- Menu de sélection -->
+  <div class="menu">
+    <button class="tab-btn active" onclick="switchGame('memory', this)">🧠 Mémoire</button>
+    <button class="tab-btn" onclick="switchGame('reflex', this)">⚡ Réflexe</button>
+    <button class="tab-btn" onclick="switchGame('math', this)">🧮 Calcul</button>
   </div>
 
-  <!-- Emplacement Pub Bas -->
-  <div class="ad-banner">📢 Espace Publicitaire AdSense / Monetag</div>
+  <!-- JEU 1 : Mémoire -->
+  <div id="game-memory" class="game-section active">
+    <h3>Jeu de Mémoire</h3>
+    <p>Associez tous les symboles !</p>
+    <div class="memory-grid" id="grid"></div>
+    <button class="btn" onclick="initMemoryGame()">🔄 Recommencer</button>
+  </div>
+
+  <!-- JEU 2 : Réflexe -->
+  <div id="game-reflex" class="game-section">
+    <h3>Test de Réflexe</h3>
+    <p>Tapez la cible le plus vite possible !</p>
+    <div class="tap-area" onclick="hitTarget()">
+      <div class="tap-target" id="target">🎯</div>
+    </div>
+    <div class="score-text">Score : <span id="score-reflex">0</span></div>
+  </div>
+
+  <!-- JEU 3 : Calcul Flash -->
+  <div id="game-math" class="game-section">
+    <h3>Calcul Flash (15s)</h3>
+    <div class="score-text">Temps restant : <span id="math-timer" style="color:#f59e0b;">15</span>s | Score : <span id="score-math">0</span></div>
+    <div class="math-box" id="math-question">Ready?</div>
+    <div class="math-options" id="math-answers">
+      <button class="math-btn" onclick="startMathGame()">Commencer 🚀</button>
+    </div>
+  </div>
+
+  <button class="btn btn-vip" onclick="alert('Paiement via Mobile Money / Paystack bientôt actif !')">👑 Devenir VIP (0 Pubs)</button>
+
+  <!-- Espace Pub Inférieur -->
+  <div class="ad-banner">📢 Espace Publicitaire (AdSense / Monetag)</div>
 
   <script>
-    const icons = ['🧱', '🎮', '🚀', '💎', '🧱', '🎮', '🚀', '💎'];
-    let cards = [];
-    let flippedCards = [];
-    let matchedCount = 0;
-
-    function shuffle(array) {
-      return array.sort(() => Math.random() - 0.5);
+    function switchGame(gameType, btn) {
+      document.querySelectorAll('.game-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('game-' + gameType).classList.add('active');
+      btn.classList.add('active');
     }
 
-    function initGame() {
+    /* --- 1. JEU DE MÉMOIRE --- */
+    const icons = ['🧱', '🎮', '🚀', '💎', '🧱', '🎮', '🚀', '💎'];
+    let flippedCards = [], matchedCount = 0;
+
+    function initMemoryGame() {
       const grid = document.getElementById('grid');
       grid.innerHTML = '';
-      cards = shuffle([...icons]);
-      flippedCards = [];
-      matchedCount = 0;
+      let cards = [...icons].sort(() => Math.random() - 0.5);
+      flippedCards = []; matchedCount = 0;
 
-      cards.forEach((icon, index) => {
+      cards.forEach((icon) => {
         const card = document.createElement('div');
         card.classList.add('card');
         card.dataset.icon = icon;
-        card.dataset.index = index;
-        card.onclick = () => flipCard(card);
+        card.onclick = () => {
+          if (flippedCards.length < 2 && !card.classList.contains('flipped') && !card.classList.contains('matched')) {
+            card.classList.add('flipped');
+            card.textContent = icon;
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+              if (flippedCards[0].dataset.icon === flippedCards[1].dataset.icon) {
+                flippedCards[0].classList.add('matched');
+                flippedCards[1].classList.add('matched');
+                matchedCount += 2;
+                flippedCards = [];
+                if (matchedCount === cards.length) setTimeout(() => alert('Victoire ! 🎉'), 300);
+              } else {
+                setTimeout(() => {
+                  flippedCards.forEach(c => { c.classList.remove('flipped'); c.textContent = ''; });
+                  flippedCards = [];
+                }, 700);
+              }
+            }
+          }
+        };
         grid.appendChild(card);
       });
     }
 
-    function flipCard(card) {
-      if (flippedCards.length < 2 && !card.classList.contains('flipped') && !card.classList.contains('matched')) {
-        card.classList.add('flipped');
-        card.textContent = card.dataset.icon;
-        flippedCards.push(card);
+    /* --- 2. JEU DE RÉFLEXE --- */
+    let reflexScore = 0;
+    function hitTarget() {
+      reflexScore++;
+      document.getElementById('score-reflex').textContent = reflexScore;
+      const target = document.getElementById('target');
+      const x = Math.floor(Math.random() * 200) - 100;
+      const y = Math.floor(Math.random() * 100) - 50;
+      target.style.transform = `translate(${x}px, ${y}px)`;
+    }
 
-        if (flippedCards.length === 2) {
-          checkMatch();
+    /* --- 3. JEU CALCUL FLASH --- */
+    let mathScore = 0, mathTimer = 15, mathInterval, currentCorrectAnswer = 0;
+
+    function startMathGame() {
+      mathScore = 0; mathTimer = 15;
+      document.getElementById('score-math').textContent = mathScore;
+      document.getElementById('math-timer').textContent = mathTimer;
+      
+      clearInterval(mathInterval);
+      mathInterval = setInterval(() => {
+        mathTimer--;
+        document.getElementById('math-timer').textContent = mathTimer;
+        if (mathTimer <= 0) {
+          clearInterval(mathInterval);
+          alert('Temps écoulé ! Score final : ' + mathScore);
+          document.getElementById('math-answers').innerHTML = `<button class="math-btn" style="grid-column: span 2;" onclick="startMathGame()">Rejouer 🔄</button>`;
         }
+      }, 1000);
+
+      nextMathQuestion();
+    }
+
+    function nextMathQuestion() {
+      const num1 = Math.floor(Math.random() * 12) + 1;
+      const num2 = Math.floor(Math.random() * 12) + 1;
+      const isAddition = Math.random() > 0.5;
+      
+      currentCorrectAnswer = isAddition ? num1 + num2 : num1 * num2;
+      document.getElementById('math-question').textContent = `${num1} ${isAddition ? '+' : '×'} ${num2} = ?`;
+
+      let answers = [currentCorrectAnswer, currentCorrectAnswer + 2, currentCorrectAnswer - 1, currentCorrectAnswer + 5];
+      answers.sort(() => Math.random() - 0.5);
+
+      const answersContainer = document.getElementById('math-answers');
+      answersContainer.innerHTML = '';
+      answers.forEach(ans => {
+        const btn = document.createElement('button');
+        btn.classList.add('math-btn');
+        btn.textContent = ans;
+        btn.onclick = () => checkMathAnswer(ans);
+        answersContainer.appendChild(btn);
+      });
+    }
+
+    function checkMathAnswer(selected) {
+      if (mathTimer > 0) {
+        if (selected === currentCorrectAnswer) {
+          mathScore++;
+          document.getElementById('score-math').textContent = mathScore;
+        }
+        nextMathQuestion();
       }
     }
 
-    function checkMatch() {
-      const [card1, card2] = flippedCards;
-      if (card1.dataset.icon === card2.dataset.icon) {
-        card1.classList.add('matched');
-        card2.classList.add('matched');
-        matchedCount += 2;
-        flippedCards = [];
-        if (matchedCount === cards.length) {
-          setTimeout(() => alert('Bravo ! Vous avez gagné ! 🎉'), 300);
-        }
-      } else {
-        setTimeout(() => {
-          card1.classList.remove('flipped');
-          card2.classList.remove('flipped');
-          card1.textContent = '';
-          card2.textContent = '';
-          flippedCards = [];
-        }, 800);
-      }
-    }
-
-    initGame();
+    // Lancement automatique du jeu de mémoire
+    initMemoryGame();
   </script>
 
 </body>
